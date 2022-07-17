@@ -17,15 +17,19 @@ export default function Chat() {
   useEffect(() => {
     if (!localhostKey) {
       navigate("/login");
-    } 
+    } else {
       setLocalhostKey(
         JSON.parse(
           localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
         )
       );
-    
+    }
 
-  }, [navigate]);
+  }, [navigate, localhostKey]);
+
+  useEffect(() => {
+   
+  }, [localhostKey])
   useEffect(() => {
     if (localhostKey) {
       socket.current = io("localhost:3000");

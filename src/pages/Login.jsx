@@ -6,7 +6,6 @@ import { loginRoute } from "../utils/APIRoutes";
 
 function Register() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const notify = (text, status) => {
