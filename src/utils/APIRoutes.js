@@ -1,4 +1,4 @@
-export const host = "http://localhost:5000";
+export const host = "https://mirafzal-online-chat.herokuapp.com";
 export const loginRoute = `${host}/user/login`;
 export const registerRoute = `${host}/user/register`;
 export const logoutRoute = `${host}/api/auth/logout`;
