@@ -1,20 +1,27 @@
-const mongoose = require("mongoose");
+const getDb = require("../utils/db").getDb;
+// const { ObjectId } = require("mongodb");
 
-const MessageSchema = mongoose.Schema(
-  {
-    message: {
-      text: { type: String, required: true },
-    },
-    users: Array,
-    sender: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-  },
-  {
-    timestamps: true,
+class Message {
+  constructor( from, to, message) {
+    this.message = message,
+    this.from = from,
+    this.to = to,
+    this.sender = from,
+    this.createdAt = new Date();
   }
-);
+  static getMessages() {
+    const db = getDb();
+    return db.collection("messages").find({}).toArray().then(messages => {
+      return messages.map(message => {
+        return message
+      })
+    });
+  };
+  
+  createMessage() {
+      const db = getDb();
+      return db.collection("messages").insertOne(this);
+  }
+};
 
-module.exports = mongoose.model("Messages", MessageSchema);
+module.exports = Message;

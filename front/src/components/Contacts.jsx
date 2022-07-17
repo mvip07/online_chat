@@ -2,16 +2,10 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 
 export default function Contacts({ contacts, changeChat }) {
-  const [currentUserName, setCurrentUserName] = useState(undefined);
-  const [currentUserImage, setCurrentUserImage] = useState(undefined);
   const [currentSelected, setCurrentSelected] = useState(undefined);
   const [localhostKey, setLocalhostKey] = useState(JSON.parse(localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)))
-
-
   useEffect(() => {
-
-    setCurrentUserName(localhostKey?.username);
-    setCurrentUserImage(localhostKey?.avatarImage);
+    setLocalhostKey(JSON.parse(localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)))
   }, []);
   const changeCurrentChat = (index, contact) => {
     setCurrentSelected(index);
@@ -19,46 +13,44 @@ export default function Contacts({ contacts, changeChat }) {
   };
   return (
     <>
-      {currentUserImage && currentUserImage && (
-        <Container>
-          <div className="brand">
-            <h3>snappy</h3>
-          </div>
-          <div className="contacts">
-            {contacts.map((contact, index) => {
-              return (
-                <div
-                  key={contact._id}
-                  className={`contact ${index === currentSelected ? "selected" : ""
-                    }`}
-                  onClick={() => changeCurrentChat(index, contact)}
-                >
-                  <div className="avatar">
-                    <img
-                      src={`data:image/svg+xml;base64,${contact.avatarImage}`}
-                      alt=""
-                    />
-                  </div>
-                  <div className="username">
-                    <h3>{contact.username}</h3>
-                  </div>
+      <Container>
+        <div className="brand">
+          <h3>snappy</h3>
+        </div>
+        <div className="contacts">
+          {contacts?.filter(({ _id }) => _id !== localhostKey.user?.id).map((contact, index) => {
+            return (
+              <div
+                key={Math.random()}
+                className={`contact ${index === currentSelected ? "selected" : ""
+                  }`}
+                onClick={() => changeCurrentChat(index, contact)}
+              >
+                <div className="avatar">
+                  <img
+                    src={``}
+                    alt=""
+                  />
                 </div>
-              );
-            })}
+                <div className="username">
+                  <h3>{contact.username}</h3>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="current-user">
+          <div className="avatar">
+            <img
+              src={`data:imag`}
+              alt="avatar"
+            />
           </div>
-          <div className="current-user">
-            <div className="avatar">
-              <img
-                src={`data:image/svg+xml;base64,${currentUserImage}`}
-                alt="avatar"
-              />
-            </div>
-            <div className="username">
-              <h2>{currentUserName}</h2>
-            </div>
+          <div className="username">
+            <h2>{localhostKey.user?.username}</h2>
           </div>
-        </Container>
-      )}
+        </div>
+      </Container>
     </>
   );
 }

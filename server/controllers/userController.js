@@ -1,85 +1,112 @@
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
-const bcrypt = require("bcrypt");
+require("dotenv").config();
 
-module.exports.login = async (req, res, next) => {
-  try {
-    const { username, password } = req.body;
-    const user = await User.findOne({ username });
-    if (!user)
-      return res.json({ msg: "Incorrect Username or Password", status: false });
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid)
-      return res.json({ msg: "Incorrect Username or Password", status: false });
-    delete user.password;
-    return res.json({ status: true, user });
-  } catch (ex) {
-    next(ex);
-  }
+
+exports.login = async (req, res, next) => {
+    const { email, password } = req.body;
+
+    let currentUser;
+
+    await User.findUser(email).then(user => {
+        if (!user) {
+            return res.status(401).json({ message: "Foydalanuvchi topilmadi!" });
+        }
+        currentUser = user;
+        return bcrypt.compare(password, user.password);
+    })
+        .then(doMatch => {
+            if (!doMatch) {
+                return res.status(401).json({ message: "Parol xato!" });
+            }
+
+            const token = jwt.sign({
+                user: currentUser.username,
+                userId: currentUser._id,
+            },
+                "mysecr8yGU&a=?k$&NpQzt9ev&kE=TPB7+HNAf7@kYd=EhUncxKhP&uC4aPN%GwZtM5v4?tWET4yN=Y263V3xd-uZ*EaN%et",
+                { expiresIn: "1h" }
+            );
+
+            res.status(201).json({
+                token: token,
+                user: {
+                    id: currentUser._id,
+                    email: currentUser.email,
+                    username: currentUser.username
+                },
+            });
+        })
+        .catch((err) => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
 
-module.exports.register = async (req, res, next) => {
-  try {
-    const { username, email, password } = req.body;
-    const usernameCheck = await User.findOne({ username });
-    if (usernameCheck)
-      return res.json({ msg: "Username already used", status: false });
-    const emailCheck = await User.findOne({ email });
-    if (emailCheck)
-      return res.json({ msg: "Email already used", status: false });
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({
-      email,
-      username,
-      password: hashedPassword,
+exports.signup = async (req, res, next) => {
+    const { username, email, telephone, password, passwordConfirm } = req.body;
+
+    await User.findUser(email).then(user => {
+        if (!user) {
+            if (password === passwordConfirm) {
+                const user = new User(username, email, telephone, password, passwordConfirm,);
+                user.save();
+                return res.status(200).json({ message: "Foydalanuvchi tuzildi!" });
+            } else {
+                return res.status(400).json({ message: "Parol mos kelmadi!" });
+            }
+        } else {
+            return res.status(400).json({ message: "Ushbu username band!" });
+        }
+    }).catch((err) => {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
     });
-    delete user.password;
-    return res.json({ status: true, user });
-  } catch (ex) {
-    next(ex);
-  }
 };
 
-module.exports.getAllUsers = async (req, res, next) => {
-  try {
-    const users = await User.find({ _id: { $ne: req.params.id } }).select([
-      "email",
-      "username",
-      "avatarImage",
-      "_id",
-    ]);
-    return res.json(users);
-  } catch (ex) {
-    next(ex);
-  }
-};
+exports.getUserUpdate = (req, res) => {
+    const db = getDb();
+    const { username, email, telephone,  password, passwordConfirm, id } = req.body;
+    if (req.file) {
+        return db.collection("users").updateOne(
+            { _id: ObjectId(id) },
+            { $set: {
+                "username": username,
+                "email": email,
+                "telephone": telephone,
+                "password": password,
+                "passwordConfirm": passwordConfirm
+                } },
+        ).then((obj) => {
+            res.status(200).json({ message: "You are cool!" });
+        }).catch((err) => {
+            console.log('Errors: ' + err);
+        })
+    } else {
+        return db.collection("users").updateOne(
+            { _id: ObjectId(id) },
+            { $set: {
+                    "username": username,
+                    "email": email,
+                    "telephone": telephone,
+                    "password": password,
+                    "passwordConfirm": passwordConfirm
+                } },
+        ).then((obj) => {
+            res.status(200).json({ message: "You are cool!" });
+        }).catch((err) => {
+            console.log('Error: ' + err);
+        })
+    }
+}
 
-module.exports.setAvatar = async (req, res, next) => {
-  try {
-    const userId = req.params.id;
-    const avatarImage = req.body.image;
-    const userData = await User.findByIdAndUpdate(
-      userId,
-      {
-        isAvatarImageSet: true,
-        avatarImage,
-      },
-      { new: true }
-    );
-    return res.json({
-      isSet: userData.isAvatarImageSet,
-      image: userData.avatarImage,
+exports.allUsers = (req, res) => {
+    User.allUsers().then(user => {
+        return res.json(user)
     });
-  } catch (ex) {
-    next(ex);
-  }
-};
-
-module.exports.logOut = (req, res, next) => {
-  try {
-    if (!req.params.id) return res.json({ msg: "User id is required " });
-    onlineUsers.delete(req.params.id);
-    return res.status(200).send();
-  } catch (ex) {
-    next(ex);
-  }
-};
+}

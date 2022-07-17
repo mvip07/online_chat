@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import styled from "styled-components";
-import { allUsersRoute, host } from "../utils/APIRoutes";
+import { allUsersRoute } from "../utils/APIRoutes";
 import ChatContainer from "../components/ChatContainer";
 import Contacts from "../components/Contacts";
 import Welcome from "../components/Welcome";
@@ -17,25 +17,24 @@ export default function Chat() {
   useEffect(() => {
     if (!localhostKey) {
       navigate("/login");
-    } else {
+    } 
       setLocalhostKey(
         JSON.parse(
           localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
         )
       );
-    }
+    
 
-  }, []);
-
+  }, [navigate]);
   useEffect(() => {
     if (localhostKey) {
-      socket.current = io(host);
-      socket.current.emit("add-user", localhostKey._id);
+      socket.current = io("localhost:3000");
+      socket.current.emit("add-user", localhostKey.user?.id);
     }
   }, [localhostKey])
 
   useEffect(() => {
-    axios.get(`${allUsersRoute}/${localhostKey?._id}`).then(res => setContacts(res.data))
+    axios.get(`${allUsersRoute}`).then(res => setContacts(res.data))
   }, []);
   const handleChatChange = (chat) => {
     setCurrentChat(chat);

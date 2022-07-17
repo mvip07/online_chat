@@ -1,32 +1,48 @@
-const mongoose = require("mongoose");
+const getDb = require("../utils/db").getDb;
+const bcrypt = require("bcryptjs");
 
-const userSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true,
-    min: 3,
-    max: 20,
-    unique: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    max: 50,
-  },
-  password: {
-    type: String,
-    required: true,
-    min: 8,
-  },
-  isAvatarImageSet: {
-    type: Boolean,
-    default: false,
-  },
-  avatarImage: {
-    type: String,
-    default: "",
-  },
-});
+class User {
+    constructor(username, email, telephone, password, passwordConfirm) {
+        this.username = username;
+        this.email = email;
+        this.telephone = telephone;
+        this.password = password;
+        this.passwordConfirm = passwordConfirm;
+        this.createDate = new Date()
+    }
 
-module.exports = mongoose.model("Users", userSchema);
+    save() {
+        const db = getDb();
+        return db.collection("users").findOne({ email: this.email }).then(user => {
+            if (user) {
+                console.log("User with this email already exsits!")
+            } else {
+                const hashedPassword = bcrypt.hashSync(this.password, 12);
+                return db.collection("users").insertOne({
+                    username: this.username,
+                    email: this.email,
+                    telephone: this.telephone,
+                    password: hashedPassword,
+                    passwordConfirm: this.passwordConfirm,
+                    date: this.createDate,
+                });
+            }
+        });
+    }
+
+    static findUser(email) {
+        const db = getDb();
+        return db.collection("users").findOne({ email: email }).then(user => user);
+    }
+
+    static allUsers() {
+        const db = getDb();
+        return db.collection("users").find({}).toArray().then(users => {
+          return users.map(user => {
+            return user
+          })
+        });
+      };
+}
+
+module.exports = User;

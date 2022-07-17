@@ -2,19 +2,16 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Robot from "../assets/robot.gif";
 export default function Welcome() {
-  const [userName, setUserName] = useState("");
   const [localhostKey, setLocalhostKey] = useState(JSON.parse(localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)))
 
   useEffect(() => {
-    setUserName(
-      localhostKey?.username
-    );
-  }, []);
+    setLocalhostKey(JSON.parse(localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)))
+  }, [])
   return (
     <Container>
       <img src={Robot} alt="" />
       <h1>
-        Welcome, <span>{userName}!</span>
+        Welcome, <span>{localhostKey.user?.userName}!</span>
       </h1>
       <h3>Please select a chat to Start messaging.</h3>
     </Container>
