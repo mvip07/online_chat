@@ -15,7 +15,7 @@ export default function ChatContainer({ currentChat, socket }) {
 			localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
 		);
 		axios.post(recieveMessageRoute, {
-			from: data.user?.id,
+			from: data?.user?.id,
 			to: currentChat?._id,
 		}).then(response => setMessages(response.data))
 

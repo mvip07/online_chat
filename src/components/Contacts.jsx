@@ -47,7 +47,7 @@ export default function Contacts({ contacts, changeChat }) {
             />
           </div>
           <div className="username">
-            <h2>{localhostKey.user?.username}</h2>
+            <h2>{localhostKey?.user?.username}</h2>
           </div>
         </div>
       </Container>
