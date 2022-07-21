@@ -73,7 +73,7 @@ export default function ChatContainer({ currentChat, socket }) {
 			<div className="chat-messages">
 				{
 					messages?.map((message) => {
-						if (currentChat?.id === message.from || currentChat?._id === message.to) {
+						if (currentChat?._id === message.from || currentChat?._id === message.to) {
 							if (localhostKey.user?.id === message.from || localhostKey.user?.id === message.to) {
 								return (
 									<div ref={scrollRef} key={uuidv4()}>
