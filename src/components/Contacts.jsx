@@ -18,7 +18,7 @@ export default function Contacts({ contacts, changeChat }) {
           <h3>snappy</h3>
         </div>
         <div className="contacts">
-          {contacts?.filter(({ _id }) => _id !== localhostKey.user?.id).map((contact, index) => {
+          {contacts?.filter(({ _id }) => _id !== localhostKey?.user?.id).map((contact, index) => {
             return (
               <div
                 key={Math.random()}

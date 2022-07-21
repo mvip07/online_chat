@@ -10,37 +10,31 @@ export default function ChatContainer({ currentChat, socket }) {
 	const [messages, setMessages] = useState([]);
 	const scrollRef = useRef();
 	const [arrivalMessage, setArrivalMessage] = useState(null);
+	const [localhostKey, setLocalhostKey] = useState(JSON.parse(localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)))
+
 	useEffect(() => {
-		const data = JSON.parse(
-			localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
-		);
+		setLocalhostKey(JSON.parse(localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)))
+
 		axios.post(recieveMessageRoute, {
-			from: data?.user?.id,
+			from: localhostKey?.user?.id,
 			to: currentChat?._id,
 		}).then(response => setMessages(response.data))
 
 	}, [messages, currentChat]);
 
 	const handleSendMsg = (msg) => {
-		const data = JSON.parse(
-			localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
-		);
 
 		socket.current.emit("send-msg", {
 			to: currentChat?._id,
-			from: data.user?.id,
+			from: localhostKey?.user?.id,
 			message: msg,
 		});
 
 		axios.post(sendMessageRoute, {
-			from: data.user?.id,
+			from: localhostKey?.user?.id,
 			to: currentChat?._id,
 			message: msg,
 		});
-
-		const msgs = [...messages];
-		msgs.push({ fromSelf: true, message: msg });
-		setMessages(msgs);
 	};
 
 	useEffect(() => {
@@ -57,7 +51,7 @@ export default function ChatContainer({ currentChat, socket }) {
 
 	useEffect(() => {
 		scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-	}, [messages]);
+	}, [socket]);
 
 	return (
 		<Container>
@@ -75,22 +69,28 @@ export default function ChatContainer({ currentChat, socket }) {
 				</div>
 				<Logout />
 			</div>
+
 			<div className="chat-messages">
 				{
-				messages.map((message) => {
-					return (
-						<div ref={scrollRef} key={uuidv4()}>
-							<div
-								className={`message ${message.sender === currentChat._id ?  "recieved"  : "sended"
-									}`}
-							>
-								<div className="content ">
-									<p>{message.message}</p>
-								</div>
-							</div>
-						</div>
-					);
-				})}
+					messages?.map((message) => {
+					
+						if (currentChat?._id === message.from || currentChat?._id === message.to) {
+							if (localhostKey.user?.id === message.from || localhostKey.user?.id === message.to) {
+								return (
+									<div ref={scrollRef} key={uuidv4()}>
+										<div
+											className={`message ${message.sender === currentChat._id ? "recieved" : "sended"}`}									>
+											<div className="content ">
+												<p>{message.message}</p>
+											</div>
+										</div>
+									</div>
+								);
+							}
+							
+						}
+
+					})}
 			</div>
 			<ChatInput handleSendMsg={handleSendMsg} />
 		</Container>
