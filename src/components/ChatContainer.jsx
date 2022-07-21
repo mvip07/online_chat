@@ -87,7 +87,6 @@ export default function ChatContainer({ currentChat, socket }) {
 								);
 							}
 						}
-						return true
 					})
 				}
 			</div>
