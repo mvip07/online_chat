@@ -19,7 +19,7 @@ export default function Chat() {
   
   useEffect(() => {
     if (localhostKey) {
-      socket.current = io("https://mirafzal-online-chat.netlify.app/");
+      socket.current = io("https://online-chat-ten.vercel.app/");
       socket.current.emit("add-user", localhostKey.user?.id);
     }
   }, [localhostKey])
