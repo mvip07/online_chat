@@ -20,7 +20,7 @@ export default function ChatContainer({ currentChat, socket }) {
 			to: currentChat?._id,
 		}).then(response => setMessages(response.data))
 
-	}, [messages, currentChat]);
+	}, [messages, currentChat, localhostKey?.user?.id]);
 
 	const handleSendMsg = (msg) => {
 
@@ -73,8 +73,7 @@ export default function ChatContainer({ currentChat, socket }) {
 			<div className="chat-messages">
 				{
 					messages?.map((message) => {
-					
-						if (currentChat?._id === message.from || currentChat?._id === message.to) {
+						if (currentChat?.id === message.from || currentChat?._id === message.to) {
 							if (localhostKey.user?.id === message.from || localhostKey.user?.id === message.to) {
 								return (
 									<div ref={scrollRef} key={uuidv4()}>
@@ -87,10 +86,10 @@ export default function ChatContainer({ currentChat, socket }) {
 									</div>
 								);
 							}
-							
 						}
-
-					})}
+						return true
+					})
+				}
 			</div>
 			<ChatInput handleSendMsg={handleSendMsg} />
 		</Container>
