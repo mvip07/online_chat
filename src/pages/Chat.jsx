@@ -19,7 +19,7 @@ export default function Chat() {
   
   useEffect(() => {
     if (localhostKey) {
-      socket.current = io("localhost:3000");
+      socket.current = io("https://mirafzal-online-chat.netlify.app/");
       socket.current.emit("add-user", localhostKey.user?.id);
     }
   }, [localhostKey])
