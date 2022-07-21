@@ -20,7 +20,7 @@ export default function ChatContainer({ currentChat, socket }) {
 			to: currentChat?._id,
 		}).then(response => setMessages(response.data))
 
-	}, [ currentChat, localhostKey?.user?.id]);
+	}, [messages,  currentChat, localhostKey?.user?.id]);
 
 	const handleSendMsg = (msg) => {
 
